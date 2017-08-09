@@ -1,0 +1,42 @@
+<PSFlexLM>
+        <Servers>
+                <Daemon id="Ansys">
+                        <HostName>flexlmhost01</HostName>
+                        <TCPPort>1055</TCPPort>
+                </Daemon>
+                <Daemon id="Autocad">
+                        <HostName>flexlmhost01</HostName>
+                        <TCPPort>2081</TCPPort>
+                </Daemon>
+
+                <Daemon id="Mathcad">
+                        <HostName>flexlmhost01</HostName>
+                        <TCPPort>7788</TCPPort>
+                </Daemon>
+
+                <Daemon id="IntelFortran">
+                        <HostName>flexlmhost02</HostName>
+                        <TCPPort>28518</TCPPort>
+                </Daemon>
+
+                <Daemon id="Abaqus">
+                        <HostName>flexlmhost02</HostName>
+                        <TCPPort>27000</TCPPort>
+                </Daemon>
+
+                <Daemon id="Solidworks">
+                        <HostName>flexlmhost02</HostName>
+                        <TCPPort>25734</TCPPort>
+                </Daemon>
+        </Servers>
+        <Configuration>
+                <LMUtilPath>C:\work\depot\toolbox\opt\lmutil.exe</LMUtilPath>
+        </Configuration>
+        <RegExLibrary>                
+                <Filter id="ServerStatus">^\s*([\w.-]+): license server (\S+)</Filter>
+                <Filter id="FeatureUseOverview">^Users of (\S+):\s*\(Total of (\d+) licenses? issued;\s*Total of (\d+) licenses? in use\)</Filter>
+                <Filter id="FloatingLicenseFeatureSummary">^  "(.+)" v(.+),(?:.+vendor: )(.+\b)(?:, expiry: )(.+)$</Filter>
+                <Filter id="FloatingLicensePrefilter">(^(?:(?!Users|Feature|lmutil|Flexible|Detecting|status|file|server|UP|floating).)+$)</Filter>
+                <Filter id="FloatingLicenseFeatureDetail">(?:^\s+)(\w+) (\w+)(?:\.\w{2,}\.\w{2,})? (?:\w+)(?:\.\w{2,}\.\w{2,})? (?:\d+ )?(?:\(v)(\d+.\d+)(?:\)) \((\w+)\/(\d+) (\d+)\), (start|stop) (.+)</Filter>
+        </RegExLibrary>
+</PSFlexLM>
