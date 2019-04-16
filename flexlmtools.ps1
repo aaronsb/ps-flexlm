@@ -154,3 +154,88 @@ function Get-FlexLMStatHost
         
     }
 }
+
+function Export-FlexLMFeaturesToELS
+{param($serviceName,[switch]$doit,$urlroot = "http://elk.contoso.com:9199")
+    $StatObject = Get-FlexLMServices $serviceName
+    $Config = [xml](gc ("flexlm_monitor.xml"))
+    $urlroot = $Config.PSFlexLM.Elastic.Host
+    
+    #mappings
+    $ELSMappings = '{
+        "mappings": {
+            "FeatureName": {
+                "properties": {
+                    "Available": {
+                        "type": "integer"
+                    },
+                    "Issued": {
+                        "type": "integer"
+                    },
+                    "Consumed": {
+                        "type": "integer"
+                    }
+                }
+            }
+        }
+    }'
+    #end mappings
+
+    if (!$StatObject)
+    {
+        write-error "No Stat object found by that name."
+        break
+    }
+    #configure flexlm index in els
+    $elk_index = ("flexlm_" + $serviceName)
+    $elk_type = "feature"
+    $features = $StatObject.FeatureState | Select-Object "FeatureName","Issued","Consumed","Available"
+    $features | Add-Member -MemberType NoteProperty -Name "@timestamp" -value ""
+    $features | %{$_."@timestamp" = $StatObject.ServerState.DateTime}
+    #each feature is a type stored in an index.
+
+    #verify index (and mapping exists). If not, create the initial index and the mapping.
+    try {
+        $els_index_config = Invoke-RestMethod -Method Get -Uri ($urlroot + "/" + $elk_index)
+    }
+    catch {
+        #error thrown, probably a missing index config, so try making a new one.
+        Invoke-RestMethod -Method PUT -Uri ($urlroot + "/" + $elk_index) -ContentType "application/json" -Body $ELSMappings | Out-Null
+    }
+    #reverify index mappings after add.
+
+    $els_index_config = Invoke-RestMethod -Method Get -Uri ($urlroot + "/" + $elk_index)
+    if (!$els_index_config.$elk_index.mappings.FeatureName.properties)
+    {
+        try {
+            write-warning "Existing index found without mappings. Trying to add mappings."
+            Invoke-RestMethod -Method PUT -Uri ($urlroot + "/" + $elk_index) -ContentType "application/json" -Body $ELSMappings | Out-Null
+            write-debug "Attemping to create new index mappings for $elk_index"
+        }
+        catch {
+            write-error $error[0]
+            throw "Couldn't add ELS mappings for flexlm indicies."
+        }
+    }
+    else {
+        write-debug "Found index mappings for $elk_index"
+    }
+    
+    $uri = ($urlroot + "/" + $elk_index + "/" + $elk_type)
+    foreach ($item in $features)
+    {
+        $body = ($item | Select-Object "FeatureName","Issued","Consumed","Available","@timestamp") | ConvertTo-Json -Compress
+        if ($doit)
+        {
+            Invoke-RestMethod -Method Post -Uri $uri -ContentType 'application/json' -Body $body | out-null    
+        }
+        else
+        {
+            "$body $uri"
+        }
+    }
+}
+
+
+
+
