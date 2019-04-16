@@ -39,4 +39,7 @@
                 <Filter id="FloatingLicensePrefilter">(^(?:(?!Users|Feature|lmutil|Flexible|Detecting|status|file|server|UP|floating).)+$)</Filter>
                 <Filter id="FloatingLicenseFeatureDetail">(?:^\s+)(\w+) (\w+)(?:\.\w{2,}\.\w{2,})? (?:\w+)(?:\.\w{2,}\.\w{2,})? (?:\d+ )?(?:\(v)(\d+.\d+)(?:\)) \((\w+)\/(\d+) (\d+)\), (start|stop) (.+)</Filter>
         </RegExLibrary>
+        <Elastic>
+                <Host>http://elk.contoso.com:9199</Host>
+        </Elastic>
 </PSFlexLM>
