@@ -1,7 +1,8 @@
 function Get-FlexLMStat
 {param ([int]$Port,$LMHost)
     $erroractionpreference = "SilentlyContinue"
-    $Config = [xml](gc ($env:toolboxxml + "\etc\flexlm_monitor.xml"))
+    #extracting this from the toolbox environment this used to live in so it works "standalone"..ish.
+    $Config = [xml](gc ("flexlm_monitor.xml"))
     function PrivGetRegex
     {param($FilterName)
         $config.PSFlexLM.RegExLibrary.Filter | ?{$_.id -eq $FilterName} | %{$_.'#text'}
@@ -130,14 +131,18 @@ function Get-FlexLMStat
 
 function Get-FlexLMServices
 {
-    $Config = [xml](gc ($env:toolboxxml + "\etc\flexlm_monitor.xml"))
+    #extracting this from the toolbox environment this used to live in so it works "standalone"..ish.
+    #$Config = [xml](gc ($env:toolboxxml + "\etc\flexlm_monitor.xml"))
+    $Config = [xml](gc ("flexlm_monitor.xml"))
     $config.PSFlexLM.Servers.Daemon
 }
 
 
 function Get-FlexLMStatHost
 {param($ServiceName)
-    $Config = [xml](gc ($env:toolboxxml + "\etc\flexlm_monitor.xml"))
+    #extracting this from the toolbox environment this used to live in so it works "standalone"..ish.
+    #$Config = [xml](gc ($env:toolboxxml + "\etc\flexlm_monitor.xml"))
+    $Config = [xml](gc ("flexlm_monitor.xml"))
 
 
     foreach ($daemon in $config.PSFlexLM.Servers.Daemon)
