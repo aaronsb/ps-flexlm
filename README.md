@@ -103,3 +103,56 @@ Export-FlexLMFeaturesToELS -ServiceName MyService -doit
 
 This will push the data to the Elasticsearch instance defined in the `flexlm_monitor.xml` file.
 
+### Running the Export Process as a Windows Service Every N Minutes
+
+To automate the export of FlexLM feature data to an Elasticsearch instance every 30 minutes (or another desired interval), you can set up a scheduled task on a Windows host using the built-in Task Scheduler. This method will allow you to run the script as a service without manual intervention.
+
+#### Steps to Set Up the Task
+
+1. **Create the PowerShell Script:**
+    Ensure the `Export-FlexLMFeaturesToELS` command is wrapped in a PowerShell script that can be executed by Task Scheduler.
+
+    Example script (`ExportFlexLM.ps1`):
+    ```powershell
+    # Define service name
+    $ServiceName = "MyService"
+
+    # Export the FlexLM feature data
+    Export-FlexLMFeaturesToELS -ServiceName $ServiceName -doit
+    ```
+
+2. **Open Task Scheduler:**
+    - Press `Win + R`, type `taskschd.msc`, and press Enter to open Task Scheduler.
+
+3. **Create a New Task:**
+    - In the Task Scheduler window, click **Create Task** on the right-hand side.
+
+4. **General Settings:**
+    - Under the **General** tab, give your task a name (e.g., "Export FlexLM to ELK").
+    - Select **Run whether user is logged on or not** to ensure the task runs in the background.
+    - Choose **Run with highest privileges** if required for script execution.
+
+5. **Set the Trigger:**
+    - Go to the **Triggers** tab and click **New**.
+    - Set the task to begin **On a schedule**.
+    - Choose a **Daily** schedule and set the **Repeat task every** option to "30 minutes" (or your desired interval).
+    - Ensure the task is set to **Enabled**.
+
+6. **Set the Action:**
+    - Go to the **Actions** tab and click **New**.
+    - Under **Action**, select **Start a program**.
+    - In the **Program/script** field, type `powershell.exe`.
+    - In the **Add arguments (optional)** field, provide the path to your script, like this:
+    ```powershell
+    -ExecutionPolicy Bypass -File "C:\path\to\ExportFlexLM.ps1"
+    ```
+
+7. **Conditions and Settings:**
+    - In the **Conditions** tab, uncheck **Start the task only if the computer is on AC power** if you want the task to run regardless of power source.
+    - Under the **Settings** tab, ensure that **Allow task to be run on demand** is checked, and configure the task to stop if it runs longer than 30 minutes.
+
+8. **Save and Test:**
+    - Click **OK** and provide administrative credentials if prompted.
+    - You can test the task by right-clicking it in Task Scheduler and selecting **Run**.
+
+This will ensure the FlexLM feature data is exported to your Elasticsearch instance every 30 minutes.
