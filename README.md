@@ -32,7 +32,7 @@ To get started with the Powershell FlexLM Wrapper, follow these steps:
 1. **Clone the repository:**
     First, you need to clone the repository to your local machine. Open your terminal and run the following commands:
     ```sh
-    git clone https://github.com/yourusername/ps-flexlm.git
+    git clone https://github.com/aaronsb/ps-flexlm.git
     cd ps-flexlm
     ```
 
